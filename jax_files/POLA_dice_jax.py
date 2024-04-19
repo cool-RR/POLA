@@ -8,9 +8,12 @@ import os
 import argparse
 import datetime
 from functools import partial
+import pathlib
+import datetime as datetime_module
 
 # os.environ['JAX_DISABLE_JIT'] = '1'
 
+import pysnooper
 import numpy as np
 import jax
 from jax import jit
@@ -25,6 +28,9 @@ from coin_game_jax import CoinGame
 from ipd_jax import IPD
 
 tfd = tfp.distributions
+
+def nice_now():
+    return datetime_module.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 def reverse_cumsum(x, axis):
@@ -1368,7 +1374,7 @@ def eval_progress(subkey, trainstate_th1, trainstate_val1, trainstate_th2, train
     score1rec = []
     score2rec = []
 
-    print("Eval vs Fixed Strategies:")
+    print(f"{nice_now()} Eval vs Fixed Strategies:")
     for strat in ["alld", "allc", "tft"]:
         # print(f"Playing against strategy: {strat.upper()}")
         key, subkey = jax.random.split(key)
@@ -1695,7 +1701,8 @@ def opp_model_selfagent2(key, true_other_trainstate_th, true_other_trainstate_va
     return om_trainstate_th, om_trainstate_val
 
 
-
+# @pysnooper.snoop(pathlib.Path.home() / 'Desktop/pola_snoop.txt', depth=1, overwrite=True,
+                 # color=True)
 def play(key, init_trainstate_th1, init_trainstate_val1, init_trainstate_th2, init_trainstate_val2, use_opp_model=False):
     joint_scores = []
     score_record = []
@@ -1705,7 +1712,7 @@ def play(key, init_trainstate_th1, init_trainstate_val1, init_trainstate_th2, in
     # I'm tired though.
     vs_fixed_strats_score_record = [[], []]
 
-    print("start iterations with", args.inner_steps, "inner steps and", args.outer_steps, "outer steps:")
+    print(f"{nice_now()} start iterations with", args.inner_steps, "inner steps and", args.outer_steps, "outer steps:")
     same_colour_coins_record = []
     diff_colour_coins_record = []
     coins_collected_info = (same_colour_coins_record, diff_colour_coins_record)
@@ -1911,6 +1918,7 @@ def play(key, init_trainstate_th1, init_trainstate_val1, init_trainstate_th2, in
         # print
         if (update + 1) % args.print_every == 0:
             print("*" * 10)
+            print(nice_now())
             print("Epoch: {}".format(update + 1), flush=True)
             print(f"Score for Agent 1: {score1}")
             print(f"Score for Agent 2: {score2}")
@@ -1946,9 +1954,8 @@ def play(key, init_trainstate_th1, init_trainstate_val1, init_trainstate_th2, in
     return joint_scores
 
 
-
-
-if __name__ == "__main__":
+def main():
+    global args, vec_env_reset, vec_env_step, use_baseline
     parser = argparse.ArgumentParser("POLA")
     parser.add_argument("--inner_steps", type=int, default=1, help="inner loop steps for DiCE")
     parser.add_argument("--outer_steps", type=int, default=1, help="outer loop steps for POLA")
@@ -2069,3 +2076,6 @@ if __name__ == "__main__":
 
     joint_scores = play(key, trainstate_th1, trainstate_val1, trainstate_th2, trainstate_val2,
                         args.opp_model)
+
+if __name__ == "__main__":
+    main()
