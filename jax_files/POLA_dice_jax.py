@@ -10,8 +10,17 @@ import datetime
 from functools import partial
 import pathlib
 import datetime as datetime_module
+import logging
 
 # os.environ['JAX_DISABLE_JIT'] = '1'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Suppress TensorFlow logs except for errors
+
+class WarningFilter(logging.Filter):
+    def filter(self, record):
+        return not record.getMessage().startswith('No GPU/TPU found, falling back to CPU.')
+
+logging.getLogger('jax._src.lib.xla_bridge').addFilter(WarningFilter())
+
 
 import pysnooper
 import numpy as np
