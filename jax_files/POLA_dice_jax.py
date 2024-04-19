@@ -2019,7 +2019,7 @@ def main():
         action_size = 4
         env = CoinGame()
     elif args.env == 'ipd':
-        input_size = 6 # 3 * n_agents
+        input_size = 7 # 3 * n_agents
         action_size = 2
         env = IPD(init_state_coop=args.init_state_coop, contrib_factor=args.contrib_factor)
     else:
