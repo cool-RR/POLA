@@ -4,28 +4,28 @@
 
 # TODO: FULL CODE REVIEW AND COMMENT EVERYTHING THAT IS HAPPENING.
 
-import numpy as np
+import os
 import argparse
 import datetime
+from functools import partial
 
+# os.environ['JAX_DISABLE_JIT'] = '1'
+
+import numpy as np
 import jax
 from jax import jit
 import optax
-from functools import partial
-
 from flax import linen as nn
 import jax.numpy as jnp
 from flax.training.train_state import TrainState
-
 from flax.training import checkpoints
-
 from tensorflow_probability.substrates import jax as tfp
-
-tfd = tfp.distributions
-
 
 from coin_game_jax import CoinGame
 from ipd_jax import IPD
+
+tfd = tfp.distributions
+
 
 def reverse_cumsum(x, axis):
     return x + jnp.sum(x, axis=axis, keepdims=True) - jnp.cumsum(x, axis=axis)
